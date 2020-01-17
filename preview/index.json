@@ -1,0 +1,43 @@
+{
+    "block": "page",
+    "mix": [
+        {
+            "block": "theme",
+            "mods": {
+                "color": "project-default",
+                "size": "default",
+                "space": "default",
+                "gap": "small"
+            }
+        }
+    ],
+    "content": [
+        {
+            "block": "header",
+            "content": {
+                "block": "header",
+                "elem": "content",
+                "content": [
+                    {
+                        "block": "header",
+                        "elem": "logo"
+                    },
+                    [
+                        {
+                            "block": "onoffswitch",
+                            "mods": {
+                                "checked": true
+                            },
+                            "content": [
+                                {
+                                    "block": "onoffswitch",
+                                    "elem": "button"
+                                }
+                            ]
+                        }
+                    ]
+                ]
+            }
+        }
+    ]
+}
