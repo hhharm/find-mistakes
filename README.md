@@ -44,6 +44,23 @@ const getMediaPath = (context: vscode.ExtensionContext, panel: vscode.WebviewPan
 
 # Превью показывается
 
-Перечитала, как должно работать превью. Доступно для любого Json. Всеми вариантами открывается, вкладка рядом, лишний раз не открывается. При обновлении json превью тоже обновляется.
+Перечитала, как должно работать превью. Проверила, что всё работает:
+* Доступно для любого Json.
+* Всеми вариантами открывается,
+* вкладка рядом, 
+* лишний раз не открывается.
+* При обновлении json превью тоже обновляется.
+![blocks screenshot 1]()
+![blocks screenshot 2]()
+
+
 
 Подменила style.css стилями из первого задания, добавила script.js в html. Стало отображаться красиво.
+Можно вернуться к отображению прямоугольниками, если в index.html заменить стили на styles_init.css 
+
+![new blocks screenshot 1]()
+![new blocks screenshot 2]()
+![new blocks screenshot 3]()
+![new blocks screenshot 4]()
+![new blocks screenshot 5]()
+![new blocks screenshot 6]()
