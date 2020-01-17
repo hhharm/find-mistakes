@@ -52,10 +52,14 @@ const createLanguageClient = (context: vscode.ExtensionContext): LanguageClient 
 
 const getPreviewKey = (doc: vscode.TextDocument): string => doc.uri.path;
 
-const getMediaPath = (context: vscode.ExtensionContext) =>
-    vscode.Uri.file(context.extensionPath)
-        .with({scheme: 'resource'})
-        .toString() + '/';
+const getMediaPath = (context: vscode.ExtensionContext, panel: vscode.WebviewPanel) => {
+    // Get path to local resource and convert it to vscode URI to use with the webview.
+    // trailing '/'  is necessary, otherwise it won't work
+    return (
+        panel.webview.asWebviewUri(vscode.Uri.file(context.extensionPath)).toString() +
+        '/'
+    );
+};
 
 const initPreviewPanel = (document: vscode.TextDocument) => {
     const key = getPreviewKey(document);
@@ -81,7 +85,8 @@ const initPreviewPanel = (document: vscode.TextDocument) => {
 };
 
 const updateContent = (doc: vscode.TextDocument, context: vscode.ExtensionContext) => {
-    const panel = PANELS[doc.uri.path];
+    //I think there if there is function to get key it should be used everywhere
+    const panel = PANELS[getPreviewKey(doc)];
 
     if (panel) {
         try {
@@ -89,12 +94,12 @@ const updateContent = (doc: vscode.TextDocument, context: vscode.ExtensionContex
             const data = JSON.parse(json);
             const html = template.apply(data);
 
-            panel.webview.html = previewHtml.replace(/{{\s+(\w+)\s+}}/g, (str, key) => {
+            panel.webview.html = previewHtml.replace(/{{\s*(\w+)\s*}}/g, (str, key) => {
                 switch (key) {
                     case 'content':
                         return html;
                     case 'mediaPath':
-                        return getMediaPath(context);
+                        return getMediaPath(context, panel);
                     default:
                         return str;
                 }
@@ -104,7 +109,8 @@ const updateContent = (doc: vscode.TextDocument, context: vscode.ExtensionContex
 };
 
 const openPreview = (context: vscode.ExtensionContext) => {
-    const editor = vscode.window.activeTextEditor;
+    console.info('Preparing View');
+    const editor: vscode.TextEditor | undefined = vscode.window.activeTextEditor;
 
     if (editor !== undefined) {
         const document: vscode.TextDocument = editor.document;
