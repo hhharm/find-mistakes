@@ -7,15 +7,15 @@ import {
     Diagnostic,
     DiagnosticSeverity,
     DidChangeConfigurationParams,
-    TextDocumentSyncKind
+    TextDocumentSyncKind,
 } from 'vscode-languageserver';
 
-import { basename } from 'path';
+import {basename} from 'path';
 
-import * as jsonToAst from "json-to-ast";
+import * as jsonToAst from 'json-to-ast';
 
-import { ExampleConfiguration, Severity, RuleKeys } from './configuration';
-import { makeLint, LinterProblem } from './linter';
+import {ExampleConfiguration, Severity, RuleKeys} from './configuration';
+import {makeLint, LinterProblem} from './linter';
 
 let conn = createConnection(ProposedFeatures.all);
 let docs = new TextDocuments();
@@ -23,13 +23,13 @@ let conf: ExampleConfiguration | undefined = undefined;
 
 conn.onInitialize((params: InitializeParams) => {
     return {
-        capabilities: {textDocumentSync: {
-                change: TextDocumentSyncKind.Full
-            }
-        }
+        capabilities: {
+            textDocumentSync: {
+                change: TextDocumentSyncKind.Full,
+            },
+        },
     };
 });
-
 
 function GetSeverity(key: RuleKeys): DiagnosticSeverity | undefined {
     if (!conf || !conf.severity) {
@@ -68,61 +68,51 @@ async function validateTextDocument(textDocument: TextDocument): Promise<void> {
     const source = basename(textDocument.uri);
     const json = textDocument.uri;
 
-    const validateObject = (
-        obj: jsonToAst.AstObject
-    ): LinterProblem<RuleKeys>[] =>
+    const validateObject = (obj: jsonToAst.AstObject): LinterProblem<RuleKeys>[] =>
         obj.children.some(p => p.key.value === 'block')
             ? []
-            : [{ key: RuleKeys.BlockNameIsRequired, loc: obj.loc }];
+            : [{key: RuleKeys.BlockNameIsRequired, loc: obj.loc}];
 
     const validateProperty = (
-        property: jsonToAst.AstProperty
+        property: jsonToAst.AstProperty,
     ): LinterProblem<RuleKeys>[] =>
         /^[A-Z]+$/.test(property.key.value)
             ? [
                   {
                       key: RuleKeys.UppercaseNamesIsForbidden,
-                      loc: property.loc
-                  }
+                      loc: property.loc,
+                  },
               ]
             : [];
 
     const diagnostics: Diagnostic[] = makeLint(
         json,
         validateProperty,
-        validateObject
-    ).reduce(
-        (
-            list: Diagnostic[],
-            problem: LinterProblem<RuleKeys>
-        ): Diagnostic[] => {
-            const severity = GetSeverity(problem.key);
+        validateObject,
+    ).reduce((list: Diagnostic[], problem: LinterProblem<RuleKeys>): Diagnostic[] => {
+        const severity = GetSeverity(problem.key);
 
-            if (severity) {
-                const message = GetMessage(problem.key);
+        if (severity) {
+            const message = GetMessage(problem.key);
 
-                let diagnostic: Diagnostic = {
-                    range: {
-                        start: textDocument.positionAt(
-                            problem.loc.start.offset
-                        ),
-                        end: textDocument.positionAt(problem.loc.end.offset)
-                    },
-                    severity,
-                    message,
-                    source
-                };
+            let diagnostic: Diagnostic = {
+                range: {
+                    start: textDocument.positionAt(problem.loc.start.offset),
+                    end: textDocument.positionAt(problem.loc.end.offset),
+                },
+                severity,
+                message,
+                source,
+            };
 
-                list.push(diagnostic);
-            }
+            list.push(diagnostic);
+        }
 
-            return list;
-        },
-        []
-    );
+        return list;
+    }, []);
 
     if (diagnostics.length) {
-        conn.sendDiagnostics({ uri: textDocument.uri, diagnostics });
+        conn.sendDiagnostics({uri: textDocument.uri, diagnostics});
     }
 }
 
@@ -136,7 +126,7 @@ docs.onDidChangeContent(change => {
     validateTextDocument(change.document);
 });
 
-conn.onDidChangeConfiguration(({ settings }: DidChangeConfigurationParams) => {
+conn.onDidChangeConfiguration(({settings}: DidChangeConfigurationParams) => {
     conf = settings.example;
     validateAll();
 });

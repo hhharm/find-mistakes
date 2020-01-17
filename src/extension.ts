@@ -1,6 +1,6 @@
-import { readFileSync, readFile } from "fs";
-import { join, resolve, basename } from "path";
-import { bemhtml } from "bem-xjst";
+import {readFileSync, readFile} from 'fs';
+import {join, resolve, basename} from 'path';
+import {bemhtml} from 'bem-xjst';
 
 import * as vscode from 'vscode';
 import {
@@ -9,11 +9,11 @@ import {
     ServerOptions,
     TransportKind,
     SettingMonitor,
-    DocumentColorRequest
+    DocumentColorRequest,
 } from 'vscode-languageclient';
 
 const serverBundleRelativePath = join('out', 'server.js');
-const previewPath: string = resolve( __dirname, '../preview/index.html');
+const previewPath: string = resolve(__dirname, '../preview/index.html');
 const previewHtml: string = readFileSync(previewPath).toString();
 const template = bemhtml.compile();
 
@@ -26,33 +26,36 @@ const createLanguageClient = (context: vscode.ExtensionContext): LanguageClient 
     const serverOptions: ServerOptions = {
         run: {
             module: serverModulePath,
-            transport: TransportKind.ipc
+            transport: TransportKind.ipc,
         },
         debug: {
             module: serverModulePath,
             transport: TransportKind.ipc,
-            options: { execArgv: ['--inspect=6009', '--nolazy'] }
-        }
+            options: {execArgv: ['--inspect=6009', '--nolazy']},
+        },
     };
 
     const clientOptions: LanguageClientOptions = {
-        documentSelector: [
-            { scheme: 'file', language: 'json' }
-        ],
-        synchronize: { configurationSection: 'example' }
+        documentSelector: [{scheme: 'file', language: 'json'}],
+        synchronize: {configurationSection: 'example'},
     };
 
-    client = new LanguageClient('languageServerExample', 'Language Server Example', serverOptions, clientOptions);
+    client = new LanguageClient(
+        'languageServerExample',
+        'Language Server Example',
+        serverOptions,
+        clientOptions,
+    );
 
     return client;
 };
 
 const getPreviewKey = (doc: vscode.TextDocument): string => doc.uri.path;
 
-const getMediaPath = (context: vscode.ExtensionContext) => vscode.Uri
-    .file(context.extensionPath)
-    .with({ scheme: "resource"})
-    .toString() + '/';
+const getMediaPath = (context: vscode.ExtensionContext) =>
+    vscode.Uri.file(context.extensionPath)
+        .with({scheme: 'resource'})
+        .toString() + '/';
 
 const initPreviewPanel = (document: vscode.TextDocument) => {
     const key = getPreviewKey(document);
@@ -63,14 +66,13 @@ const initPreviewPanel = (document: vscode.TextDocument) => {
         `Preview: ${fileName}`,
         vscode.ViewColumn.Beside,
         {
-            enableScripts: true
-        }
+            enableScripts: true,
+        },
     );
 
     PANELS[key] = panel;
 
-    const e = panel.onDidDispose(() => 
-    {
+    const e = panel.onDidDispose(() => {
         delete PANELS[key];
         e.dispose();
     });
@@ -87,19 +89,17 @@ const updateContent = (doc: vscode.TextDocument, context: vscode.ExtensionContex
             const data = JSON.parse(json);
             const html = template.apply(data);
 
-
-            panel.webview.html = previewHtml 
-                .replace(/{{\s+(\w+)\s+}}/g, (str, key) => {
-                    switch (key) {
-                        case 'content':
-                            return html;
-                        case 'mediaPath':
-                            return getMediaPath(context);
-                        default:
-                            return str;
-                    }
-                });
-        } catch(e) {}
+            panel.webview.html = previewHtml.replace(/{{\s+(\w+)\s+}}/g, (str, key) => {
+                switch (key) {
+                    case 'content':
+                        return html;
+                    case 'mediaPath':
+                        return getMediaPath(context);
+                    default:
+                        return str;
+                }
+            });
+        } catch (e) {}
     }
 };
 
@@ -114,8 +114,7 @@ const openPreview = (context: vscode.ExtensionContext) => {
 
         if (panel) {
             panel.reveal();
-        }
-        else {
+        } else {
             const panel = initPreviewPanel(document);
             updateContent(document, context);
             context.subscriptions.push(panel);
@@ -124,17 +123,20 @@ const openPreview = (context: vscode.ExtensionContext) => {
 };
 
 export function activate(context: vscode.ExtensionContext) {
-
     console.info('Congratulations, your extension is now active!');
 
     client = createLanguageClient(context);
 
     context.subscriptions.push(new SettingMonitor(client, 'example.enable').start());
 
-    const eventChange: vscode.Disposable = vscode.workspace
-        .onDidChangeTextDocument((e: vscode.TextDocumentChangeEvent) => updateContent(e.document, context));
+    const eventChange: vscode.Disposable = vscode.workspace.onDidChangeTextDocument(
+        (e: vscode.TextDocumentChangeEvent) => updateContent(e.document, context),
+    );
 
-    const previewCommand = vscode.commands.registerCommand('example.showPreviewToSide', () => openPreview(context));
+    const previewCommand = vscode.commands.registerCommand(
+        'example.showPreviewToSide',
+        () => openPreview(context),
+    );
 
     context.subscriptions.push(previewCommand, eventChange);
 }
