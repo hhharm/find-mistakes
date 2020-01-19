@@ -51,17 +51,20 @@ const getMediaPath = (context: vscode.ExtensionContext, panel: vscode.WebviewPan
 * лишний раз не открывается.
 * При обновлении json превью тоже обновляется.
 
-![blocks screenshot 1](https://raw.githubusercontent.com/hhharm/find-mistakes/bugfix/my-fixes/media/proofs/Block1.png?token=AGC5FL5X2IR6GSUP3EPHSZK6EIS5A)
-![blocks screenshot 2](https://raw.githubusercontent.com/hhharm/find-mistakes/bugfix/my-fixes/media/proofs/Blocks.png?token=AGC5FLYFZ5WD4YX725ZL2S26EITBC)
-
-
-
 Подменила style.css стилями из первого задания, добавила script.js в html. Стало отображаться красиво.
 Можно вернуться к отображению прямоугольниками, если в index.html заменить стили на styles_init.css 
 
-![new blocks screenshot 1](https://raw.githubusercontent.com/hhharm/find-mistakes/bugfix/my-fixes/media/proofs/StyledBlocks1.png?token=AGC5FL3E27BWH7IF3XG65T26EITFI)
-![new blocks screenshot 2](https://raw.githubusercontent.com/hhharm/find-mistakes/bugfix/my-fixes/media/proofs/StyledBlocks2.png?token=AGC5FLY5CLKKASBXK46C55K6EITGE)
-![new blocks screenshot 3](https://raw.githubusercontent.com/hhharm/find-mistakes/bugfix/my-fixes/media/proofs/StyledBlocks3.png?token=AGC5FL4VGDIWZ5Z7ABFMDIC6EITHC)
-![new blocks screenshot 4](https://raw.githubusercontent.com/hhharm/find-mistakes/bugfix/my-fixes/media/proofs/StyledBlocks4.png?token=AGC5FL4ZXU6RYX4O7YEGQKC6EITIC)
-![new blocks screenshot 5](https://raw.githubusercontent.com/hhharm/find-mistakes/bugfix/my-fixes/media/proofs/StyledBlocks5.png?token=AGC5FL5WN3BMUNDP3OUV5Q26EITJA)
-![new blocks screenshot 6](https://raw.githubusercontent.com/hhharm/find-mistakes/bugfix/my-fixes/media/proofs/StyledBlocks6.png?token=AGC5FL62GYGG5NP7TFCOOB26EITJ2)
+Working preview screens can be found in github repo -> media -> proofs
+
+# Линтер не работает
+Посмотрела, откуда мог бы вызываться линтер. Попутно поправила в функции GetSeverity перепутанные местами
+ типы severity. Нашла функцию client connection. 
+ 
+Поискала документацию, вот тут что-то хорошее написано 
+https://code.visualstudio.com/api/language-extensions/language-server-extension-guide, прочитала. 
+
+Дальше можно было бы добиться, чтобы линтер всё-таки запустился, и скорее всего он бы неправильно парсил.
+Можно было бы написать автотесты, тем более что здесь уже предусмотрена для них стартовая конфигурация. С их помощью проверить, что не так, и поправить всё, что парсится неправильно. Но, увы, время закончилось, так что сделать это я уже не успею :(
+
+
+

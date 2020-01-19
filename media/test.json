@@ -2,12 +2,12 @@
     "block": "page",
     "content": [
         {
-            "block": "header",
-            "content": "test"
+            "block": "HEADER",
+            "coNtent": "test"
         },
         {
-            "block": "body",
-            "content": [
+            "blAock": "body",
+            "ASDASDAD": [
                 {
                     "BLOCK": "menu",
                     "content": [

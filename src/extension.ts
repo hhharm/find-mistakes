@@ -9,9 +9,7 @@ import {
     ServerOptions,
     TransportKind,
     SettingMonitor,
-    DocumentColorRequest,
 } from 'vscode-languageclient';
-
 const serverBundleRelativePath = join('out', 'server.js');
 const previewPath: string = resolve(__dirname, '../preview/index.html');
 const previewHtml: string = readFileSync(previewPath).toString();
@@ -37,7 +35,11 @@ const createLanguageClient = (context: vscode.ExtensionContext): LanguageClient 
 
     const clientOptions: LanguageClientOptions = {
         documentSelector: [{scheme: 'file', language: 'json'}],
-        synchronize: {configurationSection: 'example'},
+        synchronize: {
+            configurationSection: 'example',
+            // Notify the server about file changes to 'json files contained in the workspace
+            fileEvents: vscode.workspace.createFileSystemWatcher('**/.json'),
+        },
     };
 
     client = new LanguageClient(
@@ -46,6 +48,8 @@ const createLanguageClient = (context: vscode.ExtensionContext): LanguageClient 
         serverOptions,
         clientOptions,
     );
+    //todo: remove start
+    client.start();
 
     return client;
 };
@@ -133,7 +137,8 @@ export function activate(context: vscode.ExtensionContext) {
 
     client = createLanguageClient(context);
 
-    context.subscriptions.push(new SettingMonitor(client, 'example.enable').start());
+    // todo: uncomment
+    // context.subscriptions.push(new SettingMonitor(client, 'example.enable').start());
 
     const eventChange: vscode.Disposable = vscode.workspace.onDidChangeTextDocument(
         (e: vscode.TextDocumentChangeEvent) => updateContent(e.document, context),
@@ -147,6 +152,9 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(previewCommand, eventChange);
 }
 
-export function deactivate() {
-    client.stop();
+export function deactivate(): Thenable<void>|undefined {
+    if (!client) {
+      return undefined;
+    }
+    return client.stop();
 }

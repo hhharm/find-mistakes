@@ -22,6 +22,10 @@ let docs = new TextDocuments();
 let conf: ExampleConfiguration | undefined = undefined;
 
 conn.onInitialize((params: InitializeParams) => {
+    
+    // Monitored files have change in VS Code
+    conn.console.log('We received an file change event');
+    conn.console.log("Initializing server");
     return {
         capabilities: {
             textDocumentSync: {
@@ -40,9 +44,9 @@ function GetSeverity(key: RuleKeys): DiagnosticSeverity | undefined {
 
     switch (severity) {
         case Severity.Error:
-            return DiagnosticSeverity.Information;
+            return DiagnosticSeverity.Error;
         case Severity.Warning:
-            return DiagnosticSeverity.Warning;
+            return  DiagnosticSeverity.Warning;
         case Severity.Information:
             return DiagnosticSeverity.Information;
         case Severity.Hint:
@@ -125,6 +129,7 @@ async function validateAll() {
 docs.onDidChangeContent(change => {
     validateTextDocument(change.document);
 });
+
 
 conn.onDidChangeConfiguration(({settings}: DidChangeConfigurationParams) => {
     conf = settings.example;
